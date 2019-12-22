@@ -33,23 +33,35 @@ router.post('/regist',function(req,res,next){
     //   Btext: "",
     // }
   }
-  model.connect(function(db){
-    db.collection('users').insertOne(data,function(err,ret){
-      if(err){
-        console.log('regist failed!')
-        res.redirect('/regist')
-      }else{
-        res.redirect('/login')
-      }
-    })
-  })
+
   if(data.password!=data.password2){
     res.redirect('/regist')
     console.log("两次密码不一致")
+    // model.connect(function(db){
+    //   db.collection('users').deleteOne(data,function(err,ret){
+    //     if(err){
+    //       console.log('delete err')
+    //     }else{
+    //       console.log('delete successfully')
+    //     }
+    //   })
+    // })
   }else{
     console.log('regist successfully!')
-    res.redirect('/login')
+    // res.redirect('/login')
+    model.connect(function(db){
+      db.collection('users').insertOne(data,function(err,ret){
+        if(err){
+          console.log('regist failed!')
+          res.redirect('/regist')
+        }else{
+          res.redirect('/login')
+        }
+      })
+    })  
   }
+
+
 })
 
 //login 
