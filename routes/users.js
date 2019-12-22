@@ -65,8 +65,8 @@ router.post('/login',function(req,res,next){
         console.log('database connection err')
       }else{
         if(docs.length > 0){
-          //set session
-          // req.session.username = data.username
+          // set session
+          req.session.username = data.username
           res.redirect('/')
           console.log('login successfully!')
         }else{
@@ -81,6 +81,7 @@ router.post('/login',function(req,res,next){
 //logout
 router.get('/logout',function(req,res,next){
   req.session.username = null
+  console.log(req.session.username)
   res.redirect('/login')
 })
 
