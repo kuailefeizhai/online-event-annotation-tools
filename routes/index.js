@@ -14,7 +14,7 @@ var model = require('../model');
 router.get('/', function(req, res, next) {
   model.connect(function(db){
     db.collection('users').find().toArray(function(err,docs){
-      console.log('acccounts list',docs)
+      // console.log('acccounts list',docs)
       res.render('index', {})
     })
   })
@@ -33,4 +33,27 @@ router.get('/login',function(req,res,next){
 router.get('/leader',function(req,res,next){
   res.render('leader',{})
 })
+//join page
+router.get('/join',function(req,res,next){
+  res.render('join',{})
+})
+//group page
+router.get('/group', function(req, res, next) {
+  var id = parseInt(req.query.id)
+  // res.render('group', {id : id })
+  model.connect(function(db){
+    // db.collection('document').find().toArray(function(err,docs){
+    //   console.log('document list',docs)
+    // })
+    var content = []
+    db.collection('document').find({'groupID':id}).toArray(function(err,docs){
+      docs.forEach(function(v,i,a){
+        content[i] = v.content
+      })
+      console.log(content)
+      res.render('group', {id : id , content : content})
+    })
+  })
+});
+
 module.exports = router;

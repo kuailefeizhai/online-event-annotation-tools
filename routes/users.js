@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var model = require('../model');
-var multiparty = require('multiparty');
-
+// var multiparty = require('multiparty');
+var multer  = require('multer');
+var fs = require('fs');
+// var text = require('text');
 // router.all('*', function(req, res, next) {
 // 	res.header("Access-Control-Allow-Origin", "*");
 // 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -11,7 +13,7 @@ var multiparty = require('multiparty');
 // 	res.header("Content-Type", "application/json;charset=utf-8");
 // 	next();
 // });
-
+var upload = multer({dest: '/public/upload/'});
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -53,7 +55,7 @@ router.post('/regist',function(req,res,next){
     // console.log('regist successfully!')
     // res.redirect('/login')
     model.connect(function(db){
-      db.collection('users').find(data.username).toArray(function(err,docs){
+      db.collection('users').find({'usernam':'data.username'}).toArray(function(err,docs){
         if(err){
           res.redirect('/regist')
           console.log('database connection err')
@@ -120,14 +122,110 @@ router.get('/logout',function(req,res,next){
 // })
 
 //upload
-router.post('/upload',function(req,res,next){
-  var form = new multiparty.Form();
-  form.parse(req,function(err,fields,files){
-    if(err){
-      console.log('upload failed!')
-    }else{
-      console.log(files)
-    }
+// router.post('/upload',function(req,res,next){
+//   var form = new multiparty.Form();
+//   form.parse(req,function(err,fields,files){
+//     if(err){
+//       console.log('upload failed!')
+//     }else{
+//       console.log(files)
+//       var file = files[0]
+//       var rs = fs.createReadStream(file.path)
+//       var newPath = '/upload' + file.originalFilename
+//       var ws = fs.createWriteStream('./public' + newPath)
+//       rs.pipe(ws)
+//       ws.on('close',function(){
+//         console.log('upload successfully!')
+//         res.send({err: '',msg:newPath})
+//       })
+//     }
+//   })
+// })
+router.post('/upload', upload.any(), function(req, res, next) {
+  console.log(req.files[0]);  // 上传的文件信息
+  var des_file = "./public/upload/" + req.files[0].originalname;
+  fs.readFile( req.files[0].path, function (err, data) {
+      fs.writeFile(des_file, data, function (err) {
+          if( err ){
+              console.log( err );
+          }else{
+              response = {
+                  message:'File uploaded successfully',
+                  filename:req.files[0].originalname
+              };
+              console.log( response );
+              res.end( JSON.stringify( response ) );
+          }
+      });
+  });
+  model.connect(function(db){
+    db.collection('users').find({'username':req.session.username}).toArray(function(err,docs){
+      if(err){
+        res.redirect('/leader')
+        console.log('database connection err')
+      }else{
+        console.log(docs[0])
+        var groupID0 = docs[0].groupID
+        var content0 = fs.readFileSync(des_file,'utf-8').toString();
+        var document = {
+          ID : 0,
+          content : content0,
+          BZID : 0,
+          groupID : groupID0,
+        }
+        model.connect(function(db){
+          db.collection('document').insertOne(document,function(err,ret){
+            if(err){
+              throw err;
+            }else{
+              console.log(document)
+            }
+          })
+          db.collection('document').find().toArray(function(err,docs){
+            console.log('document list',docs)
+          })
+        })
+      }
+    })
   })
+});
+
+//apply
+router.get('/apply',function(req,res,next){
+  model.connect(function(db){
+    db.collection('users').updateOne({'username':req.session.username},{$set:{
+      'identity':'true'
+    }},function(err,ret){
+      if(err){
+        throw err
+      }else{
+        db.collection('users').find({'username':req.session.username}).toArray(function(err,docs){
+          console.log(docs)
+        })
+      }
+    })
+  }) 
+  res.redirect('/')
 })
+
+//join group
+router.post('/join',function(req,res,next){
+  var GroupID = parseInt(req.body.groupID)
+  model.connect(function(db){
+    db.collection('users').updateOne({'username':req.session.username},{$set:{
+      'groupID':GroupID
+    }},function(err,ret){
+      if(err){
+        throw err
+      }else{
+        db.collection('users').find({'username':req.session.username}).toArray(function(err,docs){
+          console.log(docs)
+        })
+        res.redirect('/group/?id=' + GroupID)
+      }
+    })
+  }) 
+})
+
+
 module.exports = router;
