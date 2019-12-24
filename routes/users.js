@@ -40,8 +40,8 @@ router.post('/regist',function(req,res,next){
   }
 
   if(data.password!=data.password2){
-    res.redirect('/regist')
-    console.log("两次密码不一致")
+    // res.redirect('/regist')
+    // console.log("两次密码不一致")
     // model.connect(function(db){
     //   db.collection('users').deleteOne(data,function(err,ret){
     //     if(err){
@@ -51,26 +51,29 @@ router.post('/regist',function(req,res,next){
     //     }
     //   })
     // })
+    res.status(200).json({ "code": "-1" ,"msg": "两次密码不一致"})
   }else{
-    // console.log('regist successfully!')
-    // res.redirect('/login')
     model.connect(function(db){
       db.collection('users').find({'usernam':'data.username'}).toArray(function(err,docs){
         if(err){
-          res.redirect('/regist')
-          console.log('database connection err')
-        }else{//前端表达
+          // res.redirect('/regist')
+          // console.log('database connection err')
+          res.status(200).json({ "code": "-1" ,"msg": "database connection err"})
+        }else{
           if(docs.length > 0){
             console.log('username exists!')
-            res.redirect('/regist')
+            // res.redirect('/regist')
+            res.status(200).json({ "code": "-1" ,"msg": "username exists!"})
           }else{
             model.connect(function(db){
               db.collection('users').insertOne(data,function(err,ret){
                 if(err){
-                  console.log('regist failed!')
-                  res.redirect('/regist')
+                  // console.log('regist failed!')
+                  // res.redirect('/regist')
+                  res.status(200).json({ "code": "-1" ,"msg": "database connection err"})
                 }else{
-                  res.redirect('/login')
+                  // res.redirect('/login')
+                  res.status(200).json({ "code": "1" ,"msg": "regist successfully"})
                 }
               })
             }) 
@@ -92,16 +95,19 @@ router.post('/login',function(req,res,next){
   model.connect(function(db){
     db.collection('users').find(data).toArray(function(err,docs){
       if(err){
-        res.redirect('/login')
+        // res.redirect('/login')
         console.log('database connection err')
+        res.status(200).json({ "code": "-1" ,"msg": "database connection err"})
       }else{
         if(docs.length > 0){
           // set session
           req.session.username = data.username
-          res.redirect('/')
+          // res.redirect('/')
           console.log('login successfully!')
+          res.status(200).json({ "code": "1" ,"msg": "login successfully"})
         }else{
-          res.redirect('/login')
+          // res.redirect('/login')
+          res.status(200).json({ "code": "-1" ,"msg": "this account dosent exsit"})
           console.log('this account dosent exsit')
         }
       }
@@ -113,7 +119,8 @@ router.post('/login',function(req,res,next){
 router.get('/logout',function(req,res,next){
   req.session.username = null
   console.log(req.session.username)
-  res.redirect('/login')
+  // res.redirect('/login')
+  res.status(200).json({ "code": "1" ,"msg": "logout successfully"})
 })
 
 //leader
