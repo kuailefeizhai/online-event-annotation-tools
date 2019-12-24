@@ -73,7 +73,7 @@ router.post('/regist',function(req,res,next){
                   res.status(200).json({ "code": "-1" ,"msg": "database connection err"})
                 }else{
                   // res.redirect('/login')
-                  res.status(200).json({ "code": "1" ,"msg": "regist successfully"})
+                  res.status(200).json({ "code": "1" ,"msg": "regist successfully",userdata : data})
                 }
               })
             }) 
