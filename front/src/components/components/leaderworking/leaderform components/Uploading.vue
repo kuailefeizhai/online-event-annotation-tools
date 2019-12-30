@@ -17,33 +17,6 @@ export default {
       doUpload: 'http://localhost:3000/users/upload',
       username: {username: window.document.cookie}
     }
-  },
-  methods: {
-    submitUpload() {
-      var that = this
-      var data = {
-        username: window.document.cookie
-      }
-      this.$refs.upload.submit()
-      console.log(data)
-      jQuery.post(
-        'http://localhost:3000/users/upload',
-        data,
-        function (res) {
-          console.log(res)
-          that.$message({
-            message: '已上传',
-            type: 'success'
-          })
-        }
-      )
-    },
-    handleRemove(file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePreview(file) {
-      console.log(file)
-    }
   }
 }
 </script>
