@@ -41,14 +41,14 @@ export default {
           console.log(res)
           if (res.code !== '-1') {
             that.$message({
-              message: '登陆成功',
+              message: '登录成功',
               type: 'success'
             })
             that.$router.push({ name: 'Adminform' })
             that.show = true
           } else {
             that.$message({
-              message: '登陆失败',
+              message: '登录失败',
               type: 'warning'
             })
           }
