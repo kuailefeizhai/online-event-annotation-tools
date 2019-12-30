@@ -213,7 +213,7 @@ router.post('/join',function(req,res,next){
     })
   })
 })
-//
+////
 //admin
 router.post('/admin',function(req,res,next){
   var username = req.body.username
