@@ -1,0 +1,45 @@
+<template>
+  <div>
+    <TopBar/>
+    <!-- <transition :name="direction" > -->
+      <router-view  class="main-router-view"/>
+    <!-- </transition> -->
+    <BottomBar/>
+    <FastMenu/>
+  </div>
+</template>
+
+<script>
+import BottomBar from '@/components/components/BottomBar'
+import TopBar from '@/components/components/TopBar'
+import FastMenu from '@/components/components/FastMenu'
+
+export default {
+  name: 'App',
+  components: {
+    TopBar: TopBar,
+    BottomBar: BottomBar,
+    FastMenu: FastMenu
+  },
+  data() {
+    return {
+      direction: ''
+    }
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+.main-router-view {
+  position: relative;
+  width:100%;
+}
+</style>
