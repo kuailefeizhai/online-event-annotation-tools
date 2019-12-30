@@ -25,6 +25,19 @@ export default {
     return {
       direction: ''
     }
+  },
+  watch: {
+    $route(to, from) {
+      const toDepth = to.path.split('/').length
+      const fromDepth = from.path.split('/').length
+      if (to.path === '/') {
+        this.direction = 'el-fade-in'
+      } else if (from.path === '/') {
+        this.direction = 'el-zoom-in-center'
+      } else {
+        this.direction = toDepth < fromDepth ? 'el-fade-in' : 'el-zoom-in-center'
+      }
+    }
   }
 }
 </script>
