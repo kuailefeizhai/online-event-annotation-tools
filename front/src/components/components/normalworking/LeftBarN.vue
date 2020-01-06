@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-menu default-active="1-4-1" class="el-menu-vertical-demo" >
+    <el-menu default-active="1-4-1" class="el-menu-vertical-demo"  @open="handleOpen" @close="handleClose" :collapse="isCollapse">
       <el-menu-item index="0" @click="redirect('normalmanagement')">
         <i class="el-icon-menu"></i>
         <span slot="title">账号管理</span>
@@ -32,7 +32,21 @@ export default {
       }]
     }
   },
-
+  mounted() {
+    var that = this
+    var data = {
+      // username: 'lc'
+      username: window.document.cookie
+    }
+    jQuery.post(
+      'http://localhost:3000/label/fileList',
+      data,
+      function(res) {
+        console.log(res)
+        that.files = res.files
+      }
+    )
+  },
   methods: {
     addIndex(filename) {
       console.log(filename)
@@ -41,24 +55,18 @@ export default {
         query: merge(this.$route.query, {'filename': filename})
       })
     },
+    handleOpen(key, keyPath) {
+      console.log(key, keyPath)
+    },
+    handleClose(key, keyPath) {
+      console.log(key, keyPath)
+    },
     redirect(pathname) {
       this.$router.push({name: pathname})
-    },
-    created() {
-      var that = this
-      var data = {
-        username: window.document.cookie
-      }
-      jQuery.get(
-        'http://localhost:3000/label/fileList',
-        data,
-        function(res) {
-          console.log(res)
-          that.files = res.files
-        })
     }
   }
 }
+
 </script>
 
 <style>
