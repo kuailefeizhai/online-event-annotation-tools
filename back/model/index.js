@@ -9,7 +9,7 @@ var dbName = 'myproject';
 
 //封装数据库的连接方法
 function connect(callback){
-    MongoClient.connect(url,function(err,client){
+    MongoClient.connect(url,{ useUnifiedTopology: true },function(err,client){
         if(err){
             console.log('Database connection err!')
         }else{

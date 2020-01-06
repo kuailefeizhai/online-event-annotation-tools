@@ -19,7 +19,26 @@ router.get('/', function(req, res, next) {
       res.status(200).json({ data:docs})
     })
   })
-
+  model.connect(function(db){
+    db.collection('document').find().toArray(function(err,docs){
+      res.status(200).json({ data:docs})
+    })
+  })
+  model.connect(function(db){
+    db.collection('temple_trigger').find().toArray(function(err,docs){
+      res.status(200).json({ data:docs})
+    })
+  })
+  model.connect(function(db){
+    db.collection('temple_argument').find().toArray(function(err,docs){
+      res.status(200).json({ data:docs})
+    })
+  })
+  model.connect(function(db){
+    db.collection('label').find().toArray(function(err,docs){
+      res.status(200).json({ data:docs})
+    })
+  })
 });
 
 // //渲染注册页面
