@@ -60,20 +60,218 @@ router.post('/fileContent',function(req,res,next){
     })
 })
 
+//trigger
+router.post('/trigger',function(req,res,next){
+    // var filename = req.body.filename
+    // var DocumentID 
+    // model.connect(function(db){
+    //     db.collection('document').find({'filename':filename}).toArray(function(err,docs){
+    //         if(err){
+    //             throw err
+    //         }else{
+    //             DocumentID = docs[0].DocumentID
+    //         }
+    //     })
+    // })
+    // console.log("documentid "+DocumentID)
+    // model.connect(function(db){
+    //     db.collection('label').find({'DocumentID':DocumentID}).toArray(function(err,docs){
+    //         if(err){
+    //             throw err
+    //         }else{
+    //             var EventID = docs.length + 1
+    //             model.connect(function(db){
+    //                 db.collection('label').find({'username':username,'DocumentID':DocumentID}).toArray(function(err,doc){
+    //                     if(err){
+    //                         throw err
+    //                     }else{
+    //                         if(doc.length == 0){
+    //                             var labelContent = {
+    //                                 DocumentID: DocumentID,
+    //                                 EventID: EventID,
+    //                                 type: req.body.type,
+    //                                 trigger: {
+    //                                     start: req.body.start,
+    //                                     end: req.body.end,
+    //                                 },
+    //                                 argument: [],
+    //                                 username : req.body.username,
+    //                             }   
+    //                             model.connect(function(db){
+    //                                 db.collection('label').insertOne(labelContent,function(err,ret){
+    //                                     if(err){
+    //                                         throw err
+    //                                     }else{
+    //                                         res.status(200).json({ "code": "1" ,"msg": "保存成功", labelContent : labelContent})
+    //                                     }
+    //                                 })
+    //                             })
+    //                         }
+    //                     }
+    //                 })
+    //             })
+    //         }
+    //     })
+    // }) 
+    var data ={
+        start : req.body.start,
+        end : req.body.end,
+        type : req.body.type,
+        username : req.body.username,
+        filename : req.body.filename,
+    }
+    model.connect(function(db){
+        db.collection('temple_trigger').insertOne(data,function(err,ret){
+            if(err){
+                throw err
+            }else{
+                res.status(200).json({ "code": "1" ,"msg": "保存成功", data : data})
+            }
+        })
+    })
+})
+
+//argument
+router.post('/argument',function(req,res,next){
+    var filename = req.body.filename
+    var DocumentID 
+    model.connect(function(db){
+        db.collection('document').find({'filename':filename}).toArray(function(err,docs){
+            if(err){
+                throw err
+            }else{
+                DocumentID = docs[0].DocumentID
+            }
+        })
+    })
+    console.log("documentid "+DocumentID)
+    // model.connect(function(db){
+    //     db.collection('label').find({'DocumentID':DocumentID,'username':req.body.username}).toArray(function(err,docs){
+    //         if(err){
+    //             throw err
+    //         }else{
+    //             var argument = []
+    //             for(let i = 0; i<docs[0].argument.length; i++){
+    //                 argument[i] = {
+    //                     start: docs[0].argument[i].start,
+    //                     end: docs[0].argument[i].end,
+    //                     role: docs[0].argument[i].role,
+    //                 }
+    //             }
+    //             argument[docs[0].argument.length] = {
+    //                 start: req.body.start,
+    //                 end: req.body.end,
+    //                 role: req.body.role,
+    //             }
+    //             model.connect(function(db){
+    //                 db.collection('label').updateOne({'username':req.body.username},{$set:{
+    //                     'argument': argument
+    //                 }},function(err,ret){
+    //                     if(err){
+    //                         throw err;
+    //                     }else{
+    //                         res.status(200).json({ "code": "1" ,"msg": "修改成功"})
+    //                     }
+    //                 }) 
+    //             })
+    //         }
+    //     })
+    // }) 
+    var data ={
+        username : req.body.username,
+        DocumentID : DocumentID,
+        argument : [], 
+    }
+    model.connect(function(db){
+        db.collection('temple_argument').find({'DocumentID':DocumentID,'username':req.body.username}).toArray(function(err,docs){
+            if(docs.length > 0){
+                for(let i = 0; i<docs[0].argument.length; i++){
+                    data.argument[i] = {
+                        start : docs[0].argument[i].start,
+                        end : docs[0].argument[i].end,
+                        role : docs[0].argument[i].role
+                    }
+                }
+                data.argument[docs[0].argument.length] ={
+                    start : req.body.start,
+                    end : req.body.end,
+                    role : req.body.role
+                }
+                model.connect(function(db){
+                    db.collection('temple_argument').updateOne({'username':username},{$set:{
+                        'argument':argument,
+                    }},function(err,ret){
+                        if(err){
+                            throw err;
+                        }else{
+                            res.status(200).json({ "code": "1" ,"msg": "修改成功",data:data})
+                        }
+                    })
+                })
+            }else{
+                data.argument[0] ={
+                    start : req.body.start,
+                    end : req.body.end,
+                    role : req.body.role
+                }
+                model.connect(function(db){
+                    db.collection('temple_argument').insertOne(data,function(err,ret){
+                        if(err){
+                            throw err
+                        }else{
+                            res.status(200).json({ "code": "1" ,"msg": "保存成功", data : data})
+                        }
+                    })
+                })
+            }
+        })
+    })
+})
+
 //savelabel
 router.post('/savelabel',function(req,res,next){
-    var DocumentID = req.body.DocumentID
+    var filename = req.body.filename
+    var DocumentID ,type, trigger
+    var argument0 = []
     var username = req.body.username
-    var argument = []
-    for(let i = 0; i <req.body.argument.length; i++){
-        argument[i] = {
-            start: req.body.argument[i].start,
-            end: req.body.argument[i].end,
-            role: req.body.argument[i].role,
-        }
-    }
-    console.log(argument)
     model.connect(function(db){
+        db.collection('document').find({'filename':filename}).toArray(function(err,docs){
+            if(err){
+                throw err
+            }else{
+                DocumentID = docs[0].DocumentID
+            }
+        })
+    })
+    model.connect(function(db){//获取trigger信息
+        db.collection('temple_trigger').find({'filename':filename}).toArray(function(err,docs){
+            if(err){
+                throw err
+            }else{
+                trigger = {
+                    start: docs[0].start,
+                    end: docs[0].end,
+                }
+                type = docs[0].type
+            }
+        })
+    })
+    model.connect(function(db){//获取argument信息
+        db.collection('temple_argument').find({'filename':filename}).toArray(function(err,docs){
+            if(err){
+                throw err
+            }else{
+                for(let i = 0; i<docs[0].argument.length; i++){
+                    argument0[i] = {
+                        start : docs[0].argument[i].start,
+                        end : docs[0].argument[i].end,
+                        role : docs[0].argument[i].role
+                    }
+                }
+            }
+        })
+    })
+    model.connect(function(db){//保存/修改
         db.collection('label').find({'DocumentID':DocumentID}).toArray(function(err,docs){
             if(err){
                 throw err
@@ -88,12 +286,12 @@ router.post('/savelabel',function(req,res,next){
                                 var labelContent = {
                                     DocumentID: DocumentID,
                                     EventID: EventID,
-                                    type: req.body.type,
+                                    type: type,
                                     trigger: {
-                                        start: req.body.trigger.start,
-                                        end: req.body.trigger.end,
+                                        start: trigger.start,
+                                        end: trigger.end,
                                     },
-                                    argument: argument,
+                                    argument: argument0,
                                     username : username,
                                 }   
                                 model.connect(function(db){
@@ -108,12 +306,12 @@ router.post('/savelabel',function(req,res,next){
                             }else{
                                 model.connect(function(db){
                                     db.collection('label').updateOne({'username':username},{$set:{
-                                        'type': req.body.type,
+                                        'type': type,
                                         'trigger': {
-                                            start: req.body.trigger.start,
-                                            end: req.body.trigger.end,
+                                            start: trigger.start,
+                                            end: trigger.end,
                                         },
-                                        'argument':argument,
+                                        'argument':argument0,
                                     }},function(err,ret){
                                         if(err){
                                             throw err;
@@ -129,12 +327,86 @@ router.post('/savelabel',function(req,res,next){
             }
         })
     })
+    // var argument = []
+    // for(let i = 0; i <req.body.argument.length; i++){
+    //     argument[i] = {
+    //         start: req.body.argument[i].start,
+    //         end: req.body.argument[i].end,
+    //         role: req.body.argument[i].role,
+    //     }
+    // }
+    // console.log(argument)
+    // model.connect(function(db){
+    //     db.collection('label').find({'DocumentID':DocumentID}).toArray(function(err,docs){
+    //         if(err){
+    //             throw err
+    //         }else{
+    //             var EventID = docs.length + 1
+    //             model.connect(function(db){
+    //                 db.collection('label').find({'username':username,'DocumentID':DocumentID}).toArray(function(err,doc){
+    //                     if(err){
+    //                         throw err
+    //                     }else{
+    //                         if(doc.length == 0){
+    //                             var labelContent = {
+    //                                 DocumentID: DocumentID,
+    //                                 EventID: EventID,
+    //                                 type: req.body.type,
+    //                                 trigger: {
+    //                                     start: req.body.trigger.start,
+    //                                     end: req.body.trigger.end,
+    //                                 },
+    //                                 argument: argument,
+    //                                 username : username,
+    //                             }   
+    //                             model.connect(function(db){
+    //                                 db.collection('label').insertOne(labelContent,function(err,ret){
+    //                                     if(err){
+    //                                         throw err
+    //                                     }else{
+    //                                         res.status(200).json({ "code": "1" ,"msg": "保存成功", labelContent : labelContent})
+    //                                     }
+    //                                 })
+    //                             })
+    //                         }else{
+    //                             model.connect(function(db){
+    //                                 db.collection('label').updateOne({'username':username},{$set:{
+    //                                     'type': req.body.type,
+    //                                     'trigger': {
+    //                                         start: req.body.trigger.start,
+    //                                         end: req.body.trigger.end,
+    //                                     },
+    //                                     'argument':argument,
+    //                                 }},function(err,ret){
+    //                                     if(err){
+    //                                         throw err;
+    //                                     }else{
+    //                                         res.status(200).json({ "code": "1" ,"msg": "修改成功"})
+    //                                     }
+    //                                 })
+    //                             })
+    //                         }
+    //                     }
+    //                 })
+    //             })
+    //         }
+    //     })
+    // })
 })
 
 //deleteLabel
 router.post('/deleteLabel',function(req,res,next){
-    var DocumentID = req.body.DocumentID
+    var DocumentID 
     var username = req.body.username
+    model.connect(function(db){
+        db.collection('document').find({'filename':filename}).toArray(function(err,docs){
+            if(err){
+                throw err
+            }else{
+                DocumentID = docs[0].DocumentID
+            }
+        })
+    })
     model.connect(function(db){
         db.collection('label').deleteOne({'username':username,'DocumentID':DocumentID},function(err,ret){
             if(err){
